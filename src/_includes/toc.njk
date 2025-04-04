@@ -1,0 +1,28 @@
+<aside class="toc">
+  <h3>Table of Contents</h3>
+  <ul id="toc-tree">
+    {% set tocData = toc %}
+    {% if not tocData and page.url != "/" %}
+      {% set urlSegments = page.url.split("/") %}
+      {% set parentUrl = "/" + urlSegments[1] + "/" %}
+      {% if urlSegments.length > 3 %}
+        {% set parentToc = null %}
+        {% for parentPage in collections.allPages %}
+          {% if parentPage.url == parentUrl %}
+            {% set parentToc = parentPage.data.toc %}
+          {% endif %}
+        {% endfor %}
+        {% if parentToc %}
+          {% set tocData = parentToc %}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+    {% if tocData %}
+      {% for item in tocData %}
+        <li><a href="{{ item.url }}">{{ item.title }}</a></li>
+      {% endfor %}
+    {% else %}
+      <li>No TOC defined.</li>
+    {% endif %}
+  </ul>
+</aside>
