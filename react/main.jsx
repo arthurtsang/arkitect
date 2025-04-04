@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "~arkitect/react/App.jsx";
+import App from "./App.jsx"; // Relative to main.jsx in arkitect/react/
 
 const rootElement = document.getElementById("root");
 if (rootElement) {

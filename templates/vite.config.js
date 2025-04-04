@@ -15,13 +15,14 @@ export default defineConfig({
       },
       inlineDynamicImports: true, // Allows dynamic imports to be inlined
     },
-    css: {
-      extract: true
-    },
-    resolve: {
-      alias: {
-        "~user": path.resolve(__dirname, "./"), // User project root
-        "~arkitect": path.resolve(__dirname, "./node_modules/@arthurtsang/arkitect")
-      }
+  },
+  css: {
+    extract: true
+  },
+  resolve: {
+    alias: {
+      "~user": path.resolve(__dirname, "./"),
+      "~arkitect": path.resolve(__dirname, "./node_modules/@arthurtsang/arkitect")
     }
-  }});
+  }
+});
