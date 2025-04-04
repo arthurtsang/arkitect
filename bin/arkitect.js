@@ -14,7 +14,6 @@ async function initProject(projectName) {
   const projectDir = path.join(process.cwd(), projectName);
   await fs.mkdir(projectDir, { recursive: true });
 
-  // Minimal structure
   const structure = {
     "src": {
       "content": {
@@ -65,14 +64,22 @@ async function addTemplate(templateName) {
   console.log(`Added template ${templateName} to ${destDir}`);
 }
 
+function runBuild() {
+  console.log("Running build...");
+  execSync("node " + path.join(__dirname, "../scripts/generate-routes.js"), { stdio: "inherit" });
+  execSync("vite build", { stdio: "inherit" });
+  execSync("eleventy", { stdio: "inherit" });
+  console.log("Build complete.");
+}
+
 if (command === "init-project" && arg) {
   initProject(arg).catch(console.error);
 } else if (command === "add-template" && arg) {
   addTemplate(arg).catch(console.error);
 } else if (command === "build") {
-  execSync("npm run build", { stdio: "inherit" });
+  runBuild();
 } else if (command === "start") {
-  execSync("npm run start", { stdio: "inherit" });
+  execSync("vite", { stdio: "inherit" });
 } else {
   console.log("Usage: npx @arthurtsang/arkitect [init-project|add-template] <name>");
 }
