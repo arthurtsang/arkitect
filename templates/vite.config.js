@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: "dist",
+    target: "es2022", // Add this to support top-level await
     rollupOptions: {
       input: path.resolve(__dirname, "./node_modules/@arthurtsang/arkitect/react/main.jsx"),
       output: {
