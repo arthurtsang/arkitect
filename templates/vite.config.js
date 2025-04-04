@@ -13,7 +13,6 @@ export default defineConfig({
         chunkFileNames: "chunks/[name].js",
         assetFileNames: "assets/[name].[ext]",
       },
-      inlineDynamicImports: true, // Allows dynamic imports to be inlined
     },
   },
   css: {
