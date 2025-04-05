@@ -1,3 +1,4 @@
+// arkitect/src/components/Breadcrumb.jsx
 import React, { useState } from "react";
 import { useLocation, Link as RouterLink } from "react-router-dom";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
@@ -9,15 +10,15 @@ import IconButton from "@mui/material/IconButton";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const Breadcrumb = ({ routes }) => {
-  console.log("Breadcrumb: Starting render");
-  console.log("Breadcrumb: useLocation imported:", typeof useLocation === "function");
+  console.log("Breadcrumb v1.27: Starting render");
+  console.log("Breadcrumb v1.27: useLocation imported:", typeof useLocation === "function");
   try {
     const location = useLocation();
-    console.log("Breadcrumb: useLocation succeeded, pathname:", location.pathname);
+    console.log("Breadcrumb v1.27: useLocation succeeded, pathname:", location.pathname);
     const path = location.pathname;
 
     if (path === "/") {
-      console.log("Breadcrumb: Hiding on homepage");
+      console.log("Breadcrumb v1.27: Hiding on homepage");
       return null;
     }
 
@@ -48,8 +49,7 @@ const Breadcrumb = ({ routes }) => {
       setAnchorEl(null);
     };
 
-    console.log("Breadcrumb: Rendering breadcrumbs:", breadcrumbs);
-    return (
+    const renderedBreadcrumbs = (
       <Breadcrumbs aria-label="breadcrumb" separator="/">
         {breadcrumbs.map((crumb, index) => {
           const isLast = index === breadcrumbs.length - 1;
@@ -116,8 +116,12 @@ const Breadcrumb = ({ routes }) => {
         })}
       </Breadcrumbs>
     );
+
+    console.log("Breadcrumb v1.27: Rendering breadcrumbs:", breadcrumbs);
+    console.log("Breadcrumb v1.27: Rendered HTML:", renderedBreadcrumbs);
+    return renderedBreadcrumbs;
   } catch (error) {
-    console.error("Breadcrumb: Error during render:", error.message);
+    console.error("Breadcrumb v1.27: Error during render:", error.message);
     return <div>Breadcrumb Error: {error.message}</div>;
   }
 };
