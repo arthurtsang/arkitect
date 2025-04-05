@@ -21,8 +21,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "~user": path.resolve(__dirname, "./"),
-      "~arkitect": path.resolve(__dirname, "./node_modules/@arthurtsang/arkitect")
+      "~arkitect": path.resolve(__dirname, "node_modules/@arthurtsang/arkitect"),
+      "~user": path.resolve(__dirname)
     }
   }
 });

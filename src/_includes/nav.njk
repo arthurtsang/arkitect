@@ -1,9 +1,11 @@
-{% for item in nav %}
-  <a href="{{ item.url }}" title="{{ item.title }}">
-    {% if item.icon %}
-      <i class="fas fa-{{ item.icon }}"></i>
-    {% else %}
-      <span>{{ item.title }}</span>
-    {% endif %}
-  </a>
-{% endfor %}
+<nav class="left-nav">
+  {% for item in nav %}
+    <a href="{{ item.url }}" title="{{ item.title }}">
+      {% if item.icon %}
+        <i class="fas fa-{{ item.icon }}"></i>
+      {% else %}
+        <span>{{ item.title }}</span>
+      {% endif %}
+    </a>
+  {% endfor %}
+</nav>

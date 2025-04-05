@@ -1,6 +1,6 @@
 {
     "name": "@arthurtsang/arkitect",
-    "version": "1.0.14",
+    "version": "1.0.25",
     "type": "module",
     "main": "src/index.js",
     "bin": {
@@ -43,7 +43,7 @@
       "react-json-view-lite": "^2.4.1"
     },
     "scripts": {
-      "prebuild": "node scripts/generate-routes.js",
+      "prebuild": "node scripts/generate-routes.js && cp -r src/components dist/",
       "build:vite": "vite build",
       "build:eleventy": "eleventy",
       "build": "npm run prebuild && npm run build:vite && npm run build:eleventy",
