@@ -1,4 +1,3 @@
-// arkitect-app/src/components/Breadcrumb.jsx
 import React, { useState } from "react";
 import { useLocation, Link as RouterLink } from "react-router-dom";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
@@ -26,7 +25,6 @@ const Breadcrumb = ({ routes }) => {
     const breadcrumbs = [];
     let currentPath = "";
 
-    // Build breadcrumb trail for all matching routes
     for (let i = 0; i <= pathSegments.length; i++) {
       const segmentPath = i === 0 ? "/" : `/${pathSegments.slice(0, i).join("/")}/`;
       const route = routes.find((r) => r.path === segmentPath);
@@ -34,7 +32,7 @@ const Breadcrumb = ({ routes }) => {
         breadcrumbs.push({
           path: route.path,
           breadcrumb: route.breadcrumb,
-          toc: Array.isArray(route.toc) ? route.toc : [],
+          toc: Array.isArray(route.toc) ? route.toc : []
         });
       }
     }

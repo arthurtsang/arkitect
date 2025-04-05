@@ -150,6 +150,11 @@ body {
   background: #edf2f7; /* Light gray hover */
 }
 
+.breadcrumb-item {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
 .content {
   flex: 1;
   padding: 0; /* Remove extra padding, handled by main-container */

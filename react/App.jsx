@@ -1,9 +1,10 @@
+// arkitect/react/App.jsx
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Breadcrumb from "@arthurtsang/arkitect/Breadcrumb";
 import JsonSchemaViewer from "@arthurtsang/arkitect/JsonSchemaViewer";
 
-const componentModules = import.meta.glob(["~arkitect/react/components/*.jsx", "~user/react/components/*.jsx"], { eager: true });
+const componentModules = import.meta.glob(["~arkitect/src/components/*.jsx", "~user/react/components/*.jsx"], { eager: true });
 const components = {};
 for (const [path, module] of Object.entries(componentModules)) {
   const componentName = path.split("/").pop().replace(".jsx", "");
@@ -11,8 +12,7 @@ for (const [path, module] of Object.entries(componentModules)) {
   console.log("App v1.26: Loaded component:", componentName);
 }
 
-const routesPath = "~user/src/_data/routes.json";
-const routes = (await import(routesPath)).default;
+const routes = (await import("~user/src/_data/routes.json")).default;
 
 const App = () => {
   console.log("App v1.26: Starting render");
@@ -28,6 +28,7 @@ const App = () => {
     }
     const header = layout.querySelector(".top-header")?.outerHTML || "";
     const nav = layout.querySelector(".left-nav")?.outerHTML || "";
+    console.log("App v1.26: Nav content:", nav);
     console.log("App v1.26: Layout found, hydration complete");
     setLayoutData({ header, nav });
   }, []);
@@ -40,7 +41,7 @@ const App = () => {
       <div className="layout">
         <header className="top-header" dangerouslySetInnerHTML={{ __html: layoutData.header }} />
         <div className="content-wrapper">
-          <nav className="left-nav" dangerouslySetInnerHTML={{ __html: layoutData.nav }} />
+          {/* Remove .left-nav render—use Eleventy’s */}
           <div className="main-container">
             <div className="breadcrumb-wrapper">
               <Breadcrumb routes={routes} />
@@ -68,7 +69,6 @@ const SadIntroContent = () => <div><h1>Introduction</h1><p>Intro to SAD.</p></di
 const SadOverviewContent = () => <div><h1>Overview</h1><p>Overview of SAD.</p></div>;
 
 const DynamicContent = ({ content }) => {
-  // Same as v1.26
   console.log("DynamicContent: Starting render with content:", content);
   try {
     const elements = [];

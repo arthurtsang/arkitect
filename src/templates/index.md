@@ -1,6 +1,6 @@
 ---
 title: Arkitect Demo
-layout: layout.njk
+layout: layout
 permalink: /index.html
 ---
 # Welcome to Arkitect

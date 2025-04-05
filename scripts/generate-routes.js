@@ -1,76 +1,50 @@
-// create-arkitect/templates/scripts/generate-routes.js
 import { promises as fs } from "fs";
 import path from "path";
+import matter from "gray-matter";
 
 async function generateRoutes() {
   const contentDir = path.join(process.cwd(), "src/content");
   const routes = [];
 
-  async function scanDir(dir) {
-    const files = await fs.readdir(dir, { withFileTypes: true });
-    for (const file of files) {
-      const fullPath = path.join(dir, file.name);
-      if (file.isDirectory()) {
-        await scanDir(fullPath);
-      } else if (file.name.endsWith(".md")) {
+  async function walkDir(dir) {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walkDir(fullPath);
+      } else if (entry.name.endsWith(".md")) {
         const content = await fs.readFile(fullPath, "utf8");
-        const frontMatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-        if (frontMatterMatch) {
-          const frontMatter = frontMatterMatch[1];
-          const titleMatch = frontMatter.match(/^title:\s*(.+)$/m);
-          const permalinkMatch = frontMatter.match(/^permalink:\s*(.+)$/m);
-          const tocMatch = frontMatter.match(/^toc:\n((?:\s*-\s*.+\n)+)/m);
-
-          if (titleMatch && permalinkMatch) {
-            const route = {
-              path: permalinkMatch[1].trim(),
-              breadcrumb: titleMatch[1].trim(),
-              toc: [],
-            };
-
-            if (tocMatch) {
-              const tocLines = tocMatch[1].split("\n").filter(Boolean);
-              route.toc = tocLines.map((line) => {
-                const title = line.match(/title:\s*(.+)/)?.[1];
-                const url = line.match(/url:\s*(.+)/)?.[1];
-                return { title, url };
-              }).filter((item) => item.title && item.url);
-            }
-
-            routes.push(route);
-          }
-        }
-      }
-    }
-  }
-
-  await scanDir(contentDir);
-
-  // Sort routes by path depth
-  routes.sort((a, b) => a.path.split("/").length - b.path.split("/").length);
-
-  // Add Home route
-  routes.unshift({ path: "/", breadcrumb: "Home", toc: [] });
-
-  // Populate TOC for parent routes, excluding self
-  for (const route of routes) {
-    if (route.path !== "/" && route.path.split("/").length > 2) {
-      const parentPath = "/" + route.path.split("/")[1] + "/";
-      const parentRoute = routes.find((r) => r.path === parentPath);
-      if (parentRoute && route.path !== parentRoute.path && !parentRoute.toc.some((child) => child.url === route.path)) {
-        parentRoute.toc.push({
-          url: route.path,
-          title: route.breadcrumb,
+        const { data, content: markdown } = matter(content);
+        const relativePath = path.relative(contentDir, fullPath).replace(".md", "").replace(/\/index$/, "") || "/";
+        const toc = extractTOC(markdown);
+        routes.push({
+          path: data.permalink || `/${relativePath}/`,
+          breadcrumb: data.title || entry.name.replace(".md", ""),
+          toc: toc
         });
       }
     }
   }
 
-  await fs.mkdir(path.join(process.cwd(), "src/_data"), { recursive: true });
-  await fs.writeFile(
-    path.join(process.cwd(), "src/_data/routes.json"),
-    JSON.stringify(routes, null, 2)
-  );
+  function extractTOC(markdown) {
+    const toc = [];
+    const lines = markdown.split("\n");
+    lines.forEach(line => {
+      const match = line.match(/^(##+)\s+(.+)/);
+      if (match) {
+        const level = match[1].length - 1;
+        const title = match[2].trim();
+        const url = "#" + title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+        toc.push({ level, title, url });
+      }
+    });
+    return toc;
+  }
+
+  await walkDir(contentDir);
+  const outputPath = path.join(process.cwd(), "src/_data/routes.json");
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await fs.writeFile(outputPath, JSON.stringify(routes, null, 2));
   console.log("Generated routes:", routes);
 }
 

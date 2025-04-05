@@ -1,6 +1,6 @@
 ---
 title: Software Architecture Document (Simple)
-layout: layout.njk
+layout: layout
 permalink: /sad/
 icon: book
 toc:

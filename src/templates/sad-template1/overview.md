@@ -1,6 +1,6 @@
 ---
 title: Overview
-layout: layout.njk
+layout: layout
 permalink: /sad/overview/
 parent: /sad/
 ---

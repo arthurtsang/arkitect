@@ -1,6 +1,6 @@
 ---
 title: Software Architecture Document (Detailed)
-layout: layout.njk
+layout: layout
 permalink: /sad/
 ---
 # Detailed SAD

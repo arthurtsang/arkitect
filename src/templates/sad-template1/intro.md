@@ -1,6 +1,6 @@
 ---
 title: Introduction
-layout: layout.njk
+layout: layout
 permalink: /sad/introduction/
 parent: /sad/
 ---
