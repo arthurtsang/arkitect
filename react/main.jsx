@@ -1,18 +1,16 @@
 // arkitect/react/main.jsx
 import React from "react";
-import { createRoot } from "react-dom/client";
+import { hydrateRoot } from "react-dom/client";
 import App from "./App.jsx";
 
 const rootElement = document.getElementById("root");
 if (rootElement) {
-  console.log("Main: Root element found, mounting app");
+  console.log("Main: Root element found, hydrating app");
   try {
-    rootElement.innerHTML = ""; // Clear static content
-    const root = createRoot(rootElement);
-    root.render(<App />);
+    hydrateRoot(rootElement, <App />);
   } catch (error) {
-    console.error("Main: Error mounting app:", error.message);
-    rootElement.innerHTML = `<div>Error mounting app: ${error.message}</div>`;
+    console.error("Main: Error hydrating app:", error.message);
+    rootElement.innerHTML = `<div>Error hydrating app: ${error.message}</div>`;
   }
 } else {
   console.error("Main: Root element not found");

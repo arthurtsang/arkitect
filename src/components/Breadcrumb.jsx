@@ -10,25 +10,26 @@ import IconButton from "@mui/material/IconButton";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const Breadcrumb = ({ routes }) => {
-  console.log("Breadcrumb v1.27: Starting render");
-  console.log("Breadcrumb v1.27: useLocation imported:", typeof useLocation === "function");
+  console.log("Breadcrumb: Starting render");
+  console.log("Breadcrumb: useLocation imported:", typeof useLocation === "function");
   try {
     const location = useLocation();
-    console.log("Breadcrumb v1.27: useLocation succeeded, pathname:", location.pathname);
-    const path = location.pathname;
+    console.log("Breadcrumb: useLocation succeeded, pathname:", location.pathname);
+    let path = location.pathname;
+    if (path === "") path = "/";
 
-    if (path === "/") {
-      console.log("Breadcrumb v1.27: Hiding on homepage");
-      return null;
-    }
-
-    const pathSegments = path.split("/").filter((segment) => segment);
+    const pathSegments = path === "/" ? [""] : path.split("/").filter(segment => segment);
     const breadcrumbs = [];
     let currentPath = "";
 
-    for (let i = 0; i <= pathSegments.length; i++) {
-      const segmentPath = i === 0 ? "/" : `/${pathSegments.slice(0, i).join("/")}/`;
-      const route = routes.find((r) => r.path === segmentPath);
+    // Add Home
+    const homeRoute = { path: "/", breadcrumb: "Home", toc: [] };
+    breadcrumbs.push(homeRoute);
+
+    // Build trail
+    for (let i = 0; i < pathSegments.length; i++) {
+      currentPath = `/${pathSegments.slice(0, i + 1).join("/")}/`;
+      const route = routes.find(r => r.path === currentPath);
       if (route) {
         breadcrumbs.push({
           path: route.path,
@@ -49,24 +50,28 @@ const Breadcrumb = ({ routes }) => {
       setAnchorEl(null);
     };
 
-    const renderedBreadcrumbs = (
+    console.log("Breadcrumb: Rendering breadcrumbs:", breadcrumbs);
+    return (
       <Breadcrumbs aria-label="breadcrumb" separator="/">
         {breadcrumbs.map((crumb, index) => {
           const isLast = index === breadcrumbs.length - 1;
           const hasChildren = crumb.toc.length > 0;
-          const isDeeperPath = path.length > crumb.path.length && path.startsWith(crumb.path);
 
-          if (hasChildren && (!isLast || !isDeeperPath)) {
+          if (hasChildren) {
             return (
               <div key={crumb.path} style={{ display: "flex", alignItems: "center" }}>
-                <Link
-                  component={RouterLink}
-                  to={crumb.path}
-                  color="inherit"
-                  underline="hover"
-                >
-                  {crumb.breadcrumb}
-                </Link>
+                {isLast ? (
+                  <Typography color="text.primary">{crumb.breadcrumb}</Typography>
+                ) : (
+                  <Link
+                    component={RouterLink}
+                    to={crumb.path}
+                    color="inherit"
+                    underline="hover"
+                  >
+                    {crumb.breadcrumb}
+                  </Link>
+                )}
                 <IconButton
                   size="small"
                   onClick={handleClick}
@@ -116,12 +121,8 @@ const Breadcrumb = ({ routes }) => {
         })}
       </Breadcrumbs>
     );
-
-    console.log("Breadcrumb v1.27: Rendering breadcrumbs:", breadcrumbs);
-    console.log("Breadcrumb v1.27: Rendered HTML:", renderedBreadcrumbs);
-    return renderedBreadcrumbs;
   } catch (error) {
-    console.error("Breadcrumb v1.27: Error during render:", error.message);
+    console.error("Breadcrumb: Error during render:", error.message);
     return <div>Breadcrumb Error: {error.message}</div>;
   }
 };

@@ -25,6 +25,8 @@ export default async function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "public": "public" }, { priority: 1 });
   eleventyConfig.addPassthroughCopy("src/content/**/*.json");
   eleventyConfig.addPassthroughCopy("src/_data");
+  // eleventyConfig.addPassthroughCopy({ "node_modules/@arthurtsang/arkitect/src/public/light.css": "public/light.css" });
+  // eleventyConfig.addPassthroughCopy({ "node_modules/@arthurtsang/arkitect/src/public/dark.css": "public/dark.css" });
 
   let navCache = null;
   eleventyConfig.addGlobalData("nav", async () => {
@@ -43,6 +45,11 @@ export default async function (eleventyConfig) {
 
   const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
   eleventyConfig.setLibrary("md", md);
+
+  // Add custom concat filter
+  eleventyConfig.addFilter("concat", function(array, value) {
+    return array.concat(value);
+  });
 
   eleventyConfig.addNunjucksShortcode("react", function (componentName, props = {}) {
     const propsString = Object.entries(props).map(([key, value]) => `${key}="${value}"`).join(" ");

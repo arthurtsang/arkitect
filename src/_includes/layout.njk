@@ -1,22 +1,24 @@
-<!-- create-arkitect/templates/src/_includes/layout.njk -->
+<!-- arkitect/src/_includes/layout.njk -->
 <!DOCTYPE html>
-<html>
+<html class="light">
   <head>
     <title>{{ title }}</title>
-    <link rel="preload" href="/public/styles.css" as="style">
-    <link rel="stylesheet" href="/public/styles.css">
+    <link rel="preload" href="/public/light.css" as="style">
+    <link rel="stylesheet" href="/public/light.css" id="light-theme">
+    <link rel="stylesheet" href="/public/dark.css" id="dark-theme" disabled>
     <link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="icon" href="/public/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <div id="root"></div>
-    <div class="layout" style="display: none;">
-      {% include "header.njk" %}
-      <div class="content-wrapper">
-        {% include "nav.njk" %}
-        <div class="main-container">
-          <div class="breadcrumb-wrapper"></div>
-          <main class="content">{{ content | safe }}</main>
+    <div id="root">
+      <div class="layout">
+        {% include "header.njk" %}
+        <div class="content-wrapper">
+          {% include "nav.njk" %}
+          <div class="main-container">
+            <div class="breadcrumb-wrapper"></div>
+            <main class="content">{{ content | safe }}</main>
+          </div>
         </div>
       </div>
     </div>
