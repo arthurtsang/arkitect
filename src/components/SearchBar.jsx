@@ -2,6 +2,7 @@
 import React from "react";
 
 const SearchBar = () => {
+  console.log("SearchBar: Rendering");
   return (
     <input
       type="text"

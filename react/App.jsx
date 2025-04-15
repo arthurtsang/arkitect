@@ -1,31 +1,33 @@
 // arkitect/react/App.jsx
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Breadcrumb from "@arthurtsang/arkitect/Breadcrumb";
-import SearchBar from "@arthurtsang/arkitect/SearchBar";
-import ThemeToggle from "@arthurtsang/arkitect/ThemeToggle";
-import JsonSchemaViewer from "@arthurtsang/arkitect/JsonSchemaViewer";
+import { BrowserRouter, Routes, Route } from "react-router-dom"; // Use exports from index.js
 
 const componentModules = import.meta.glob(["./../src/components/*.jsx", "./../../../src/components/*.jsx"], { eager: true });
 const components = {};
 for (const [path, module] of Object.entries(componentModules)) {
   const componentName = path.split("/").pop().replace(".jsx", "");
-  components[componentName] = module.default;
-  console.log("App v1.26: Loaded component:", componentName);
+  const Component = module.default;
+  console.log(`App: Inspecting component ${componentName}`, module);
+  if (typeof Component === "function") {
+    components[componentName] = Component;
+    console.log("App: Loaded component:", componentName, typeof Component, "[Debug #999]");
+  } else {
+    console.error(`App: Component ${componentName} is not a valid React component.`, module);
+    components[componentName] = () => <div>Error: Invalid component {componentName}</div>;
+  }
 }
 
-const routes = (await import("~user/src/_data/routes.json")).default;
-
 const App = () => {
-  console.log("App v1.26: Starting render");
+  console.log("App v1.27: Starting render");
   const [layoutData, setLayoutData] = useState(null);
+  const [routes, setRoutes] = useState([]);
 
   useEffect(() => {
-    console.log("App v1.26: useEffect running");
+    console.log("App v1.27: useEffect running");
     const layout = document.querySelector(".layout");
     if (!layout) {
-      console.error("App v1.26: Layout element not found");
+      console.error("App v1.27: Layout element not found");
       setLayoutData({ error: "Layout not found" });
       return;
     }
@@ -33,30 +35,56 @@ const App = () => {
     const content = layout.querySelector(".content");
     const searchBar = layout.querySelector("#search-bar");
     const themeToggle = layout.querySelector("#theme-toggle");
-    console.log("App v1.26: Layout found, hydration complete");
+    console.log("App v1.27: Layout found, hydration complete");
     setLayoutData({ breadcrumbWrapper, content, searchBar, themeToggle });
+
+    // Dynamically load routes
+    import("~user/_data/routes.json")
+      .then((module) => {
+        setRoutes(module.default);
+        console.log("App v1.27: Routes loaded:", module.default);
+      })
+      .catch((err) => console.error("App v1.27: Failed to load routes:", err));
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", onDomContentLoaded);
+    } else {
+      onDomContentLoaded();
+    }
+
+    return () => {
+      document.removeEventListener("DOMContentLoaded", onDomContentLoaded);
+    };
   }, []);
 
-  if (!layoutData) return null;
+  if (!layoutData || !routes.length) return null;
   if (layoutData.error) return <div>Error: {layoutData.error}</div>;
+
+  const DynamicComponent = ({ componentName, element, props = {} }) => {
+    console.log("DynamicComponent: Attempting to render component:", componentName, "with props:", props);
+    const Component = components[componentName];
+    if (!Component || typeof Component !== "function") {
+      console.error(`DynamicComponent: Component ${componentName} is not a valid React component.`, Component);
+      return <InsertIntoElement element={element}><div>Error: Component {componentName} is invalid or not found</div></InsertIntoElement>;
+    }
+    console.log("DynamicComponent: Successfully resolved component:", componentName);
+    return <InsertIntoElement element={element}><Component {...props} /></InsertIntoElement>;
+  };
 
   return (
     <BrowserRouter>
-      <InsertIntoElement element={layoutData.searchBar}>
-        <SearchBar />
-      </InsertIntoElement>
-      <InsertIntoElement element={layoutData.themeToggle}>
-        <ThemeToggle />
-      </InsertIntoElement>
-      <InsertIntoElement element={layoutData.breadcrumbWrapper}>
-        <Breadcrumb routes={routes} />
-      </InsertIntoElement>
+      <DynamicComponent componentName="SearchBar" element={layoutData.searchBar} />
+      <DynamicComponent componentName="ThemeToggle" element={layoutData.themeToggle} />
+      <DynamicComponent componentName="Breadcrumb" element={layoutData.breadcrumbWrapper} props={{ routes }} />
       <InsertIntoElement element={layoutData.content} preserveContent={true}>
         <Routes>
-          <Route path="/" element={<HomeContent />} />
-          <Route path="/sad/" element={<SadContent />} />
-          <Route path="/sad/introduction/" element={<SadIntroContent />} />
-          <Route path="/sad/overview/" element={<SadOverviewContent />} />
+          {routes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<DynamicContent />}
+            />
+          ))}
           <Route path="*" element={<div>404 - Not Found</div>} />
         </Routes>
       </InsertIntoElement>
@@ -64,13 +92,12 @@ const App = () => {
   );
 };
 
-// Helper to insert React content into DOM element
 const InsertIntoElement = ({ element, children, preserveContent = false }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (element && !mounted) {
-      if (!preserveContent) element.innerHTML = ""; // Clear only if not preserving
+      if (!preserveContent) element.innerHTML = "";
       setMounted(true);
     }
   }, [element, mounted, preserveContent]);
@@ -78,13 +105,11 @@ const InsertIntoElement = ({ element, children, preserveContent = false }) => {
   return element && mounted ? createPortal(children, element) : null;
 };
 
-const HomeContent = () => <div><h1>Welcome to Arkitect</h1><p>Sample page.</p></div>;
-const SadContent = () => <DynamicContent content={`<h1>Simple SAD</h1><p>A basic overview.</p><div data-react="JsonSchemaViewer" schemaPath="/sad/example.json"></div><p>More content below the component.</p>`} />;
-const SadIntroContent = () => <div><h1>Introduction</h1><p>Intro to SAD.</p></div>;
-const SadOverviewContent = () => <div><h1>Overview</h1><p>Overview of SAD.</p></div>;
-
-const DynamicContent = ({ content }) => {
+const DynamicContent = () => {
+  const contentElement = document.querySelector(".content");
+  const content = contentElement ? contentElement.innerHTML : "<div>No content available</div>";
   console.log("DynamicContent: Starting render with content:", content);
+
   try {
     const elements = [];
     let lastIndex = 0;
@@ -97,7 +122,7 @@ const DynamicContent = ({ content }) => {
       const componentName = el.getAttribute("data-react");
       const Component = components[componentName];
       const props = Array.from(el.attributes)
-        .filter(attr => attr.name !== "data-react")
+        .filter((attr) => attr.name !== "data-react")
         .reduce((acc, attr) => ({ ...acc, [attr.name]: attr.value }), {});
 
       const htmlBefore = content.substring(lastIndex, content.indexOf(el.outerHTML));

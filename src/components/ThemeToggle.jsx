@@ -1,8 +1,7 @@
-// arkitect/src/components/ThemeToggle.jsx
 import React, { useState, useEffect } from "react";
-import { DarkModeSwitch } from "react-toggle-dark-mode";
 
 const ThemeToggle = () => {
+  console.log("ThemeToggle: Rendering");
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -17,18 +16,23 @@ const ThemeToggle = () => {
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = (checked) => {
-    setIsDarkMode(checked);
+  const toggleDarkMode = () => {
+    setIsDarkMode((prevMode) => !prevMode);
   };
 
   return (
-    <DarkModeSwitch
-      checked={isDarkMode}
-      onChange={toggleDarkMode}
-      size={32}
-      sunColor="#f39c12"
-      moonColor="#7f8c8d"
-    />
+    <button
+      onClick={toggleDarkMode}
+      style={{
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        fontSize: "1.5rem",
+      }}
+      aria-label="Toggle dark mode"
+    >
+      {isDarkMode ? "🌙" : "☀️"}
+    </button>
   );
 };
 

@@ -4,6 +4,7 @@ import { JsonView } from "react-json-view-lite";
 import "react-json-view-lite/dist/index.css";
 
 const JsonSchemaViewer = ({ schemaPath }) => {
+  console.log("JsonSchemaViewer: Rendering with schemaPath:", schemaPath);
   const [schema, setSchema] = useState(null);
   const [error, setError] = useState(null);
 

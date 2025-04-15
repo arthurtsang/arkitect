@@ -10,6 +10,7 @@ import IconButton from "@mui/material/IconButton";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const Breadcrumb = ({ routes }) => {
+  console.log("Breadcrumb: Rendering with routes:", routes);
   console.log("Breadcrumb: Starting render");
   console.log("Breadcrumb: useLocation imported:", typeof useLocation === "function");
   try {

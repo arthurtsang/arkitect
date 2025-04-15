@@ -1,0 +1,17 @@
+{
+  "name": "ignored",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "arkitect build",
+    "start": "arkitect start",
+    "arkitect": "npx @arthurtsang/arkitect"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "vite": "^6.2.6",
+    "@vitejs/plugin-react": "^4.3.4"
+  }
+}
