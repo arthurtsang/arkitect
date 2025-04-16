@@ -33,32 +33,42 @@ const waitForStylesheets = () => {
       const checkLoaded = () => {
         try {
           const sheet = link.sheet;
-          if (sheet && (sheet.cssRules || sheet.rules)) {
-            console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}, rules: ${(sheet.cssRules || sheet.rules).length}`);
+          if (sheet && (sheet.cssRules || sheet.rules || sheet.href)) {
+            console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}`);
             loadedCount++;
             checkAllLoaded();
           } else {
+            console.log(`Main: Stylesheet ${link.href} not ready, retrying`);
             setTimeout(checkLoaded, 50);
           }
         } catch (e) {
-          console.warn(`Main: Stylesheet access delayed for ${link.href}, retrying:`, e.message);
-          setTimeout(checkLoaded, 50);
+          console.warn(`Main: Stylesheet access delayed for ${link.href}, counting as loaded:`, e.message);
+          loadedCount++;
+          checkAllLoaded();
         }
       };
 
-      link.addEventListener("load", () => {
-        console.log(`Main: Load event for ${link.href}`);
+      // Check if already loaded
+      if (link.sheet) {
         checkLoaded();
-      }, { once: true });
+      }
 
+      link.addEventListener("load", checkLoaded, { once: true });
       link.addEventListener("error", () => {
         console.error(`Main: Stylesheet error: ${link.href}`);
         loadedCount++;
         checkAllLoaded();
       }, { once: true });
-
-      checkLoaded(); // Initial check
     });
+
+    // Fallback after timeout
+    setTimeout(() => {
+      if (loadedCount < totalStylesheets) {
+        console.warn("Main: Stylesheet timeout, forcing loaded state");
+        loadedCount = totalStylesheets;
+        checkAllLoaded();
+      }
+    }, 2000);
   });
 };
 
@@ -70,18 +80,25 @@ if (rootElement) {
       console.log("Main: Before hydration, root content:", rootElement.innerHTML.substring(0, 200) + "...");
       console.log("Main: Before hydration, .layout exists:", !!document.querySelector(".layout"));
       try {
-        hydrateRoot(rootElement, <App />);
+        hydrateRoot(rootElement, <App />, {
+          onRecoverableError: (error) => {
+            console.warn("Main: Hydration error recovered:", error.message);
+          }
+        });
         console.log("Main: Hydrated successfully");
       } catch (error) {
         console.error("Main: Hydration failed:", error);
         rootElement.innerHTML = `<div>Error: Failed to load UI components. ${error.message}</div>`;
+        document.body.classList.add("loaded");
       }
     })
     .catch((error) => {
       console.error("Main: Stylesheet wait failed:", error);
       rootElement.innerHTML = `<div>Error: Stylesheet loading failed. ${error.message}</div>`;
+      document.body.classList.add("loaded");
     });
 } else {
   console.error("Main: Root element not found");
   document.body.innerHTML = `<div>Error: Root element not found</div>`;
+  document.body.classList.add("loaded");
 }

@@ -14,15 +14,21 @@ const InsertIntoElement = ({ element, children, preserveContent = false }) => {
       return;
     }
 
-    if (!preserveContent) {
-      element.innerHTML = "";
+    const liveElement = document.getElementById(element.id) || element;
+    if (!liveElement) {
+      console.error("InsertIntoElement: Live element not found");
+      return;
     }
-    element.appendChild(containerRef.current);
-    console.log("InsertIntoElement: Appended to element");
+
+    if (!preserveContent) {
+      liveElement.innerHTML = "";
+    }
+    liveElement.appendChild(containerRef.current);
+    console.log("InsertIntoElement: Appended to live element:", liveElement.id || liveElement.className);
 
     return () => {
-      if (element.contains(containerRef.current)) {
-        element.removeChild(containerRef.current);
+      if (liveElement.contains(containerRef.current)) {
+        liveElement.removeChild(containerRef.current);
       }
     };
   }, [element, preserveContent]);

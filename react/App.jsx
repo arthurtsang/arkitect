@@ -55,12 +55,19 @@ const App = memo(() => {
     setLayoutData(data);
 
     // Poll for routes
+    let attempts = 0;
+    const maxAttempts = 40; // 2 seconds
     const checkRoutes = () => {
       if (window.__ARKITECT_ROUTES__ && window.__ARKITECT_ROUTES__.length > 0) {
         console.log("App: Routes loaded:", window.__ARKITECT_ROUTES__);
         setRoutes(window.__ARKITECT_ROUTES__);
-      } else {
+      } else if (attempts < maxAttempts) {
+        attempts++;
+        console.log("App: Routes not loaded, attempt:", attempts);
         setTimeout(checkRoutes, 50);
+      } else {
+        console.warn("App: Routes timeout, using fallback");
+        setRoutes([{ path: "/sad/", breadcrumb: "Software Architecture Document (Simple)" }]);
       }
     };
     checkRoutes();
@@ -124,9 +131,8 @@ const App = memo(() => {
                     element={<DynamicContent />}
                   />
                 ))}
-                <Route path="*" element={<div>Loading content...</div>} />
+                <Route path="*" element={<DynamicContent />} />
               </Routes>
-              {routes.length === 0 && <DynamicContent />}
             </React.Suspense>
           </InsertIntoElement>
         )}
