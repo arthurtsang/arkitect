@@ -9,7 +9,7 @@ const waitForStylesheets = () => {
     const stylesheets = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
     console.log("Main: Found stylesheets:", stylesheets.map(link => link.href));
     if (stylesheets.length === 0) {
-      console.log("Main: No stylesheets found, resolving immediately");
+      console.warn("Main: No stylesheets found, resolving immediately");
       resolve();
       return;
     }
@@ -17,7 +17,7 @@ const waitForStylesheets = () => {
     let loadedCount = 0;
     const totalStylesheets = stylesheets.length;
     const timeout = setTimeout(() => {
-      console.warn("Main: Stylesheet loading timed out after 5s");
+      console.warn("Main: Stylesheet loading timed out after 5s, loaded:", loadedCount, "/", totalStylesheets);
       resolve(); // Proceed to avoid hanging
     }, 5000);
 
@@ -29,27 +29,42 @@ const waitForStylesheets = () => {
       }
     };
 
-    stylesheets.forEach((link) => {
-      // Check if stylesheet is already loaded
-      if (link.sheet && link.sheet.cssRules && link.sheet.cssRules.length > 0) {
-        loadedCount++;
-        console.log("Main: Stylesheet already loaded:", link.href);
-        checkAllLoaded();
-      } else {
-        link.addEventListener("load", () => {
+    stylesheets.forEach((link, index) => {
+      const checkLoaded = () => {
+        if (link.sheet && link.sheet.cssRules) {
+          console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}, rules: ${link.sheet.cssRules.length}`);
+          if (!link.sheet.cssRules.length) {
+            console.warn(`Main: Stylesheet ${link.href} has no rules`);
+          }
           loadedCount++;
-          console.log("Main: Stylesheet loaded:", link.href);
           checkAllLoaded();
+        }
+      };
+
+      // Check immediately
+      checkLoaded();
+
+      // Poll if not loaded
+      if (!link.sheet || !link.sheet.cssRules) {
+        const interval = setInterval(() => {
+          checkLoaded();
+          if (link.sheet && link.sheet.cssRules) {
+            clearInterval(interval);
+          }
+        }, 50);
+        link.addEventListener("load", () => {
+          clearInterval(interval);
+          checkLoaded();
         });
         link.addEventListener("error", () => {
+          clearInterval(interval);
+          console.error(`Main: Stylesheet error: ${link.href}`);
           loadedCount++;
-          console.error("Main: Stylesheet error:", link.href);
           checkAllLoaded();
         });
       }
     });
 
-    // Check immediately in case all are already loaded
     checkAllLoaded();
   });
 };

@@ -12,16 +12,17 @@ const App = () => {
 
   useEffect(() => {
     console.log("App: useEffect running");
-    const maxAttempts = 5;
+    const maxAttempts = 10;
     let attempts = 0;
 
     const attemptQuery = () => {
       attempts++;
+      console.log(`App: Attempt ${attempts}/${maxAttempts} to query DOM`);
       const layoutElement = document.querySelector(".layout");
       if (!layoutElement) {
         console.error(`App: Layout element not found (attempt ${attempts}/${maxAttempts})`);
         if (attempts < maxAttempts) {
-          setTimeout(attemptQuery, 100);
+          setTimeout(attemptQuery, 200);
           return;
         }
         setError("Layout element not found after multiple attempts");
@@ -35,17 +36,25 @@ const App = () => {
         content: layoutElement.querySelector(".content")
       };
 
-      if (!data.searchBar || !data.themeToggle || !data.breadcrumbWrapper || !data.content) {
-        console.error(`App: Missing layout elements (attempt ${attempts}/${maxAttempts}):`, data);
+      console.log("App: Queried elements:", {
+        searchBar: !!data.searchBar,
+        themeToggle: !!data.themeToggle,
+        breadcrumbWrapper: !!data.breadcrumbWrapper,
+        content: !!data.content
+      });
+
+      // Require only .content to proceed
+      if (!data.content) {
+        console.error(`App: Missing critical .content element (attempt ${attempts}/${maxAttempts})`);
         if (attempts < maxAttempts) {
-          setTimeout(attemptQuery, 100);
+          setTimeout(attemptQuery, 200);
           return;
         }
-        setError("Missing required layout elements");
+        setError("Missing critical .content element");
         return;
       }
 
-      console.log("App: Layout data:", data);
+      console.log("App: Layout data set:", data);
       setLayoutData(data);
     };
 
@@ -69,9 +78,19 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <DynamicComponent componentName="SearchBar" element={layoutData.searchBar} />
-      <DynamicComponent componentName="ThemeToggle" element={layoutData.themeToggle} />
-      <DynamicComponent componentName="Breadcrumb" element={layoutData.breadcrumbWrapper} props={{ routes }} />
+      {layoutData.searchBar && (
+        <DynamicComponent componentName="SearchBar" element={layoutData.searchBar} />
+      )}
+      {layoutData.themeToggle && (
+        <DynamicComponent componentName="ThemeToggle" element={layoutData.themeToggle} />
+      )}
+      {layoutData.breadcrumbWrapper && (
+        <DynamicComponent
+          componentName="Breadcrumb"
+          element={layoutData.breadcrumbWrapper}
+          props={{ routes }}
+        />
+      )}
       <InsertIntoElement element={layoutData.content} preserveContent={true}>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
