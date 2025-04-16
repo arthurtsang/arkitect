@@ -54,23 +54,17 @@ const App = memo(() => {
     console.log("App: Layout data set:", Object.keys(data));
     setLayoutData(data);
 
-    // Poll for routes
-    let attempts = 0;
-    const maxAttempts = 40; // 2 seconds
+    // Load routes
     const checkRoutes = () => {
       if (window.__ARKITECT_ROUTES__ && window.__ARKITECT_ROUTES__.length > 0) {
         console.log("App: Routes loaded:", window.__ARKITECT_ROUTES__);
         setRoutes(window.__ARKITECT_ROUTES__);
-      } else if (attempts < maxAttempts) {
-        attempts++;
-        console.log("App: Routes not loaded, attempt:", attempts);
-        setTimeout(checkRoutes, 50);
       } else {
-        console.warn("App: Routes timeout, using fallback");
-        setRoutes([{ path: "/sad/", breadcrumb: "Software Architecture Document (Simple)" }]);
+        console.log("App: Routes not loaded, retrying");
+        setTimeout(checkRoutes, 100);
       }
     };
-    checkRoutes();
+    setTimeout(checkRoutes, 100); // Initial delay
   }, []);
 
   if (error) {

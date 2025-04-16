@@ -48,27 +48,27 @@ const waitForStylesheets = () => {
         }
       };
 
-      // Check if already loaded
       if (link.sheet) {
         checkLoaded();
+      } else {
+        link.addEventListener("load", checkLoaded, { once: true });
+        link.addEventListener("error", () => {
+          console.error(`Main: Stylesheet error: ${link.href}`);
+          loadedCount++;
+          checkAllLoaded();
+        }, { once: true });
+        setTimeout(checkLoaded, 100); // Initial delay
       }
-
-      link.addEventListener("load", checkLoaded, { once: true });
-      link.addEventListener("error", () => {
-        console.error(`Main: Stylesheet error: ${link.href}`);
-        loadedCount++;
-        checkAllLoaded();
-      }, { once: true });
     });
 
-    // Fallback after timeout
+    // Fallback timeout
     setTimeout(() => {
       if (loadedCount < totalStylesheets) {
         console.warn("Main: Stylesheet timeout, forcing loaded state");
-        loadedCount = totalStylesheets;
-        checkAllLoaded();
+        document.body.classList.add("loaded");
+        resolve();
       }
-    }, 2000);
+    }, 3000);
   });
 };
 
