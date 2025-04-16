@@ -4,55 +4,68 @@ import { fileURLToPath } from "url";
 import { promises as fs } from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-console.log("[11ty v1.28 Debug] Loading .eleventy.js from:", __dirname);
+const includesPath = path.join(process.cwd(), "_includes");
 
 export default async function (eleventyConfig) {
-  const includesPath = "node_modules/@arthurtsang/arkitect/src/_includes";
-  console.log("[11ty v1.28 Debug] Includes path:", path.resolve(includesPath));
-  
+  console.log("[11ty Debug] Loading .eleventy.js from:", __dirname);
+  console.log("[11ty Debug] Includes path:", includesPath);
+
   try {
     await fs.access(path.join(includesPath, "layout.njk"));
-    console.log("[11ty v1.28 Debug] layout.njk exists at:", path.join(includesPath, "layout.njk"));
+    console.log("[11ty Debug] layout.njk exists at:", path.join(includesPath, "layout.njk"));
   } catch (err) {
-    console.error("[11ty v1.28 Debug] layout.njk not found at:", path.join(includesPath, "layout.njk"), "Error:", err);
+    console.error("[11ty Debug] layout.njk not found at:", path.join(includesPath, "layout.njk"), "Error:", err);
   }
 
-  eleventyConfig.addPassthroughCopy({ "node_modules/@arthurtsang/arkitect/src/public": "public" });
-  eleventyConfig.addPassthroughCopy("dist");
+  // Passthrough copy for assets
+  eleventyConfig.addPassthroughCopy({ "dist": "dist" });
   eleventyConfig.addPassthroughCopy({ "node_modules/@fortawesome/fontawesome-free/css/all.min.css": "node_modules/@fortawesome/fontawesome-free/css/all.min.css" });
   eleventyConfig.addPassthroughCopy({ "node_modules/@fortawesome/fontawesome-free/webfonts": "node_modules/@fortawesome/fontawesome-free/webfonts" });
-  eleventyConfig.addPassthroughCopy({ "src/_includes": "_includes" }, { priority: 1 });
-  eleventyConfig.addPassthroughCopy({ "public": "public" }, { priority: 1 });
+  eleventyConfig.addPassthroughCopy({ "public": "public" });
   eleventyConfig.addPassthroughCopy("src/content/**/*.json");
   eleventyConfig.addPassthroughCopy("src/_data");
-  // eleventyConfig.addPassthroughCopy({ "node_modules/@arthurtsang/arkitect/src/public/light.css": "public/light.css" });
-  // eleventyConfig.addPassthroughCopy({ "node_modules/@arthurtsang/arkitect/src/public/dark.css": "public/dark.css" });
 
+  // Global navigation data
   let navCache = null;
   eleventyConfig.addGlobalData("nav", async () => {
     if (navCache) {
-      console.log("[11ty v1.28 Debug] Returning cached nav data:", navCache);
+      console.log("[11ty Debug] Returning cached nav data:", navCache);
       return navCache;
     }
     const navPath = path.join(process.cwd(), "src/_data/nav.json");
     navCache = JSON.parse(await fs.readFile(navPath, "utf8"));
-    console.log("[11ty v1.28 Debug] Nav data loaded:", navCache);
-    console.log("[11ty v1.28 Debug] Nav render count:", navCache.length);
+    console.log("[11ty Debug] Nav data loaded:", navCache);
     return navCache;
   });
 
+  // Collection for all markdown pages
   eleventyConfig.addCollection("allPages", (collectionApi) => collectionApi.getFilteredByGlob("src/content/**/*.md"));
 
+  // Configure Markdown
   const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
   eleventyConfig.setLibrary("md", md);
 
-  // Add custom concat filter
-  eleventyConfig.addFilter("concat", function(array, value) {
+  // Custom concat filter
+  eleventyConfig.addFilter("concat", function (array, value) {
     return array.concat(value);
   });
 
-  eleventyConfig.addNunjucksShortcode("react", function (componentName, props = {}) {
-    const propsString = Object.entries(props).map(([key, value]) => `${key}="${value}"`).join(" ");
+  eleventyConfig.addNunjucksShortcode("react", function (componentName, ...args) {
+    let props = {};
+    args.forEach((arg, index) => {
+      if (typeof arg === "string" && arg.includes("=")) {
+        const [key, value] = arg.split("=", 2);
+        props[key.trim()] = value.trim().replace(/^"(.*)"$/, "$1");
+      } else if (typeof arg === "object" && arg !== null) {
+        Object.assign(props, arg);
+      } else {
+        props[`arg${index}`] = arg;
+      }
+    });
+    console.log(`[11ty Debug] react shortcode props for ${componentName}:`, props);
+    const propsString = Object.entries(props)
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(" ");
     return `<div data-react="${componentName}" ${propsString}></div>`;
   });
 
@@ -60,7 +73,7 @@ export default async function (eleventyConfig) {
     dir: {
       input: ".",
       output: "_site",
-      includes: includesPath,
+      includes: "_includes",
       data: "src/_data"
     },
     markdownTemplateEngine: "njk",

@@ -1,4 +1,3 @@
-// arkitect/src/components/JsonSchemaViewer.jsx
 import React, { useState, useEffect } from "react";
 import { JsonView } from "react-json-view-lite";
 import "react-json-view-lite/dist/index.css";
@@ -10,6 +9,10 @@ const JsonSchemaViewer = ({ schemaPath }) => {
 
   useEffect(() => {
     async function fetchSchema() {
+      if (!schemaPath) {
+        setError("No schema path provided");
+        return;
+      }
       try {
         console.log("JsonSchemaViewer: Fetching schema from:", schemaPath);
         const response = await fetch(schemaPath);
@@ -22,7 +25,7 @@ const JsonSchemaViewer = ({ schemaPath }) => {
         console.error("JsonSchemaViewer: Error:", err);
       }
     }
-    if (schemaPath) fetchSchema();
+    fetchSchema();
   }, [schemaPath]);
 
   if (error) return <div>Error: {error}</div>;

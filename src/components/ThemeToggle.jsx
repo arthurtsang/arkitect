@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 
 const ThemeToggle = () => {
   console.log("ThemeToggle: Rendering");
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
 
   useEffect(() => {
     const lightSheet = document.getElementById("light-theme");
@@ -10,9 +12,11 @@ const ThemeToggle = () => {
     if (isDarkMode) {
       lightSheet.disabled = true;
       darkSheet.disabled = false;
+      localStorage.setItem("theme", "dark");
     } else {
       lightSheet.disabled = false;
       darkSheet.disabled = true;
+      localStorage.setItem("theme", "light");
     }
   }, [isDarkMode]);
 
@@ -27,7 +31,7 @@ const ThemeToggle = () => {
         background: "none",
         border: "none",
         cursor: "pointer",
-        fontSize: "1.5rem",
+        fontSize: "1.5rem"
       }}
       aria-label="Toggle dark mode"
     >

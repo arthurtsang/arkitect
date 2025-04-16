@@ -13,6 +13,6 @@ toc:
 
 A basic architecture overview.
 
-{% react "JsonSchemaViewer" %}
+{% react "JsonSchemaViewer", { schemaPath: "/sad/example.json" } %}
 
 More content below the component.
