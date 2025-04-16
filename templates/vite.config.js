@@ -17,8 +17,7 @@ export default defineConfig({
         entryFileNames: 'main.js',
         chunkFileNames: 'chunks/[name].js',
         assetFileNames: 'assets/[name].[ext]'
-      },
-      external: []
+      }
     }
   },
   resolve: {

@@ -25,16 +25,7 @@ async function initProject(projectName) {
 
   const indexJsxTemplatePath = path.join(__dirname, "../templates/index.jsx");
   const viteConfigTemplatePath = path.join(__dirname, "../templates/vite.config.js");
-  let viteConfigContent = await fs.readFile(viteConfigTemplatePath, "utf8");
-
-  // Replace external array with peerDependencies, excluding react, react-dom, and react-router-dom
-  // const externalList = JSON.stringify(
-  //   peerDependencies.filter(dep => !["react", "react-dom", "react-router-dom"].includes(dep))
-  // );
-  // viteConfigContent = viteConfigContent.replace(
-  //   /external: \[\]/,
-  //   `external: ${externalList}`
-  // );
+  const viteConfigContent = await fs.readFile(viteConfigTemplatePath, "utf8");
 
   const structure = {
     "src": {

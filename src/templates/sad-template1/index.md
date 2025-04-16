@@ -16,3 +16,5 @@ A basic architecture overview.
 {% react "JsonSchemaViewer", { schemaPath: "/sad/example.json" } %}
 
 More content below the component.
+
+{% debug %}
