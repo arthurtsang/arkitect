@@ -38,6 +38,13 @@ export default async function (eleventyConfig) {
     return navCache;
   });
 
+  // Add package.json version to global data
+  eleventyConfig.addGlobalData("pkgVersion", async () => {
+    const pkgPath = path.join(process.cwd(), "package.json");
+    const pkg = JSON.parse(await fs.readFile(pkgPath, "utf8"));
+    return pkg.version;
+  });
+
   // Collection for all markdown pages
   eleventyConfig.addCollection("allPages", (collectionApi) => collectionApi.getFilteredByGlob("src/content/**/*.md"));
 
@@ -50,6 +57,7 @@ export default async function (eleventyConfig) {
     return array.concat(value);
   });
 
+  // Updated react shortcode to handle named arguments
   eleventyConfig.addNunjucksShortcode("react", function (componentName, ...args) {
     let props = {};
     args.forEach((arg, index) => {

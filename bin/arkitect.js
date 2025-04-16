@@ -27,12 +27,14 @@ async function initProject(projectName) {
   const viteConfigTemplatePath = path.join(__dirname, "../templates/vite.config.js");
   let viteConfigContent = await fs.readFile(viteConfigTemplatePath, "utf8");
 
-  // Replace external array with peerDependencies
-  const externalList = JSON.stringify(peerDependencies);
-  viteConfigContent = viteConfigContent.replace(
-    /external: \[\]/,
-    `external: ${externalList}`
-  );
+  // Replace external array with peerDependencies, excluding react, react-dom, and react-router-dom
+  // const externalList = JSON.stringify(
+  //   peerDependencies.filter(dep => !["react", "react-dom", "react-router-dom"].includes(dep))
+  // );
+  // viteConfigContent = viteConfigContent.replace(
+  //   /external: \[\]/,
+  //   `external: ${externalList}`
+  // );
 
   const structure = {
     "src": {
@@ -117,6 +119,13 @@ async function addTemplate(templateName) {
   console.log(`Added template ${templateName} to ${destDir}`);
   const copiedFiles = await fs.readdir(destDir);
   console.log(`Copied files: ${copiedFiles.join(", ")}`);
+  const indexMdPath = path.join(destDir, "index.md");
+  try {
+    const indexMdContent = await fs.readFile(indexMdPath, "utf8");
+    console.log(`index.md content:\n${indexMdContent}`);
+  } catch (e) {
+    console.error(`Failed to read ${indexMdPath}: ${e.message}`);
+  }
 
   const templateConfigPath = path.join(templateDir, "template.json");
   const navPath = path.join(process.cwd(), "src/_data/nav.json");

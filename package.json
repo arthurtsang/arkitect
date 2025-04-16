@@ -1,6 +1,6 @@
 {
   "name": "@arthurtsang/arkitect",
-  "version": "1.0.113",
+  "version": "1.0.117",
   "type": "module",
   "main": "src/index.js",
   "bin": {
