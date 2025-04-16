@@ -9,6 +9,7 @@ const App = memo(() => {
   console.log("App: Starting render");
   const [layoutData, setLayoutData] = useState(null);
   const [error, setError] = useState(null);
+  const [routes, setRoutes] = useState([]);
   const savedDomRef = useRef(null);
 
   const root = document.getElementById("root");
@@ -52,6 +53,17 @@ const App = memo(() => {
 
     console.log("App: Layout data set:", Object.keys(data));
     setLayoutData(data);
+
+    // Poll for routes
+    const checkRoutes = () => {
+      if (window.__ARKITECT_ROUTES__ && window.__ARKITECT_ROUTES__.length > 0) {
+        console.log("App: Routes loaded:", window.__ARKITECT_ROUTES__);
+        setRoutes(window.__ARKITECT_ROUTES__);
+      } else {
+        setTimeout(checkRoutes, 50);
+      }
+    };
+    checkRoutes();
   }, []);
 
   if (error) {
@@ -85,9 +97,6 @@ const App = memo(() => {
     );
   }
 
-  const routes = window.__ARKITECT_ROUTES__ || [];
-  console.log("App: Routes loaded:", routes);
-
   return (
     <div id="root">
       <BrowserRouter>
@@ -115,8 +124,9 @@ const App = memo(() => {
                     element={<DynamicContent />}
                   />
                 ))}
-                <Route path="*" element={<div>404 - Not Found</div>} />
+                <Route path="*" element={<div>Loading content...</div>} />
               </Routes>
+              {routes.length === 0 && <DynamicContent />}
             </React.Suspense>
           </InsertIntoElement>
         )}

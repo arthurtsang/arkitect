@@ -22,7 +22,7 @@ const waitForStylesheets = () => {
     const totalStylesheets = stylesheets.length;
 
     const checkAllLoaded = () => {
-      if (loadedCount === totalStylesheets) {
+      if (loadedCount >= totalStylesheets) {
         console.log("Main: All stylesheets loaded");
         document.body.classList.add("loaded");
         resolve();
@@ -33,30 +33,31 @@ const waitForStylesheets = () => {
       const checkLoaded = () => {
         try {
           const sheet = link.sheet;
-          if (sheet && sheet.cssRules && sheet.cssRules.length > 0) {
-            console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}, rules: ${sheet.cssRules.length}`);
+          if (sheet && (sheet.cssRules || sheet.rules)) {
+            console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}, rules: ${(sheet.cssRules || sheet.rules).length}`);
             loadedCount++;
             checkAllLoaded();
           } else {
             setTimeout(checkLoaded, 50);
           }
         } catch (e) {
-          console.error(`Main: Stylesheet access error for ${link.href}:`, e);
-          loadedCount++;
-          checkAllLoaded();
+          console.warn(`Main: Stylesheet access delayed for ${link.href}, retrying:`, e.message);
+          setTimeout(checkLoaded, 50);
         }
       };
 
-      if (link.sheet) {
+      link.addEventListener("load", () => {
+        console.log(`Main: Load event for ${link.href}`);
         checkLoaded();
-      } else {
-        link.addEventListener("load", checkLoaded, { once: true });
-        link.addEventListener("error", () => {
-          console.error(`Main: Stylesheet error: ${link.href}`);
-          loadedCount++;
-          checkAllLoaded();
-        }, { once: true });
-      }
+      }, { once: true });
+
+      link.addEventListener("error", () => {
+        console.error(`Main: Stylesheet error: ${link.href}`);
+        loadedCount++;
+        checkAllLoaded();
+      }, { once: true });
+
+      checkLoaded(); // Initial check
     });
   });
 };

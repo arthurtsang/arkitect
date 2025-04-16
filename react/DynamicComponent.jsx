@@ -8,7 +8,7 @@ const DynamicComponent = ({ componentName, element, props = {} }) => {
   if (!Component) {
     console.error(`DynamicComponent: Component ${componentName} not found`);
     return element ? (
-      <Insert kintoElement element={element}>
+      <InsertIntoElement element={element}>
         <div>Error: Component {componentName} not found</div>
       </InsertIntoElement>
     ) : (
@@ -17,7 +17,7 @@ const DynamicComponent = ({ componentName, element, props = {} }) => {
   }
 
   if (!element) {
-    console.warn(`DynamicComponent: No element provided for ${componentName}, rendering directly`);
+    console.warn(`DynamicComponent: No element for ${componentName}, rendering directly`);
     return (
       <Suspense fallback={<div>Loading...</div>}>
         <Component {...props} />
@@ -26,9 +26,9 @@ const DynamicComponent = ({ componentName, element, props = {} }) => {
   }
 
   return (
-    <InsertIntoElement element={element}>
+    <InsertIntoElement element={element} preserveContent={true}>
       <Suspense fallback={<div>Loading...</div>}>
-        <Component {...props} />
+        <Component element={element} {...props} />
       </Suspense>
     </InsertIntoElement>
   );
