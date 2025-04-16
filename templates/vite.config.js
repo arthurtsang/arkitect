@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist',
-    target: 'es2022',
+    target: 'esnext',
     minify: false,
     sourcemap: true,
     cssCodeSplit: false,

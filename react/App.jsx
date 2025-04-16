@@ -43,7 +43,6 @@ const App = () => {
         content: !!data.content
       });
 
-      // Require only .content to proceed
       if (!data.content) {
         console.error(`App: Missing critical .content element (attempt ${attempts}/${maxAttempts})`);
         if (attempts < maxAttempts) {
@@ -64,14 +63,14 @@ const App = () => {
   if (error) {
     return (
       <div style={{ padding: "20px", color: "red" }}>
-        Error: {error}. Please check the Eleventy template configuration.
+        Error: {error}. Check if Eleventy’s layout.njk includes .layout.
       </div>
     );
   }
 
   if (!layoutData) {
     console.log("App: Waiting for layoutData");
-    return <div style={{ padding: "20px" }}>Loading layout...</div>;
+    return null; // Avoid rendering until DOM is ready
   }
 
   const routes = window.__ARKITECT_ROUTES__ || [];
@@ -92,7 +91,7 @@ const App = () => {
         />
       )}
       <InsertIntoElement element={layoutData.content} preserveContent={true}>
-        <Suspense fallback={<div>Loading...</div>}>
+        <React.Suspense fallback={<div>Loading...</div>}>
           <Routes>
             {routes.map((route) => (
               <Route
@@ -103,7 +102,7 @@ const App = () => {
             ))}
             <Route path="*" element={<div>404 - Not Found</div>} />
           </Routes>
-        </Suspense>
+        </React.Suspense>
       </InsertIntoElement>
     </BrowserRouter>
   );

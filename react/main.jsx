@@ -5,7 +5,7 @@ import App from "./App.jsx";
 const rootElement = document.getElementById("root");
 
 const waitForStylesheets = () => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const stylesheets = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
     console.log("Main: Found stylesheets:", stylesheets.map(link => link.href));
     if (stylesheets.length === 0) {
@@ -18,7 +18,7 @@ const waitForStylesheets = () => {
     const totalStylesheets = stylesheets.length;
     const timeout = setTimeout(() => {
       console.warn("Main: Stylesheet loading timed out after 5s, loaded:", loadedCount, "/", totalStylesheets);
-      resolve(); // Proceed to avoid hanging
+      resolve();
     }, 5000);
 
     const checkAllLoaded = () => {
@@ -33,31 +33,15 @@ const waitForStylesheets = () => {
       const checkLoaded = () => {
         if (link.sheet && link.sheet.cssRules) {
           console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}, rules: ${link.sheet.cssRules.length}`);
-          if (!link.sheet.cssRules.length) {
-            console.warn(`Main: Stylesheet ${link.href} has no rules`);
-          }
           loadedCount++;
           checkAllLoaded();
         }
       };
 
-      // Check immediately
       checkLoaded();
-
-      // Poll if not loaded
       if (!link.sheet || !link.sheet.cssRules) {
-        const interval = setInterval(() => {
-          checkLoaded();
-          if (link.sheet && link.sheet.cssRules) {
-            clearInterval(interval);
-          }
-        }, 50);
-        link.addEventListener("load", () => {
-          clearInterval(interval);
-          checkLoaded();
-        });
+        link.addEventListener("load", checkLoaded);
         link.addEventListener("error", () => {
-          clearInterval(interval);
           console.error(`Main: Stylesheet error: ${link.href}`);
           loadedCount++;
           checkAllLoaded();
@@ -70,7 +54,7 @@ const waitForStylesheets = () => {
 };
 
 if (rootElement) {
-  console.log("Main: Waiting for stylesheets...");
+  console.log("Main: Initial root content:", rootElement.innerHTML);
   waitForStylesheets()
     .then(() => {
       console.log("Main: Hydrating...");
