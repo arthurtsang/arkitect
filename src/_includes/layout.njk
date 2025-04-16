@@ -29,20 +29,6 @@
         </div>
       </div>
     </div>
-    <script type="module">
-      import { hydrateRoot } from 'react-dom/client';
-      import App from '/src/App.jsx';
-      Promise.all([
-        ...Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map(link =>
-          new Promise(resolve => {
-            if (link.sheet && link.sheet.cssRules.length) resolve();
-            else link.onload = resolve;
-          })
-        )
-      ]).then(() => {
-        document.body.classList.add('loaded');
-        hydrateRoot(document.getElementById('root'), <App />);
-      });
-    </script>
+    <script type="module" src="/dist/main.js?v={{ pkgVersion }}" defer></script>
   </body>
 </html>
