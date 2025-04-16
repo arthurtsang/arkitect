@@ -42,22 +42,39 @@ const waitForStylesheets = () => {
             setTimeout(checkLoaded, 50);
           }
         } catch (e) {
-          console.warn(`Main: Stylesheet access delayed for ${link.href}, counting as loaded:`, e.message);
+          console.warn(`Main: Stylesheet access failed for ${link.href}, treating as loaded:`, e.message);
           loadedCount++;
           checkAllLoaded();
         }
       };
 
-      if (link.sheet) {
-        checkLoaded();
-      } else {
-        link.addEventListener("load", checkLoaded, { once: true });
-        link.addEventListener("error", () => {
-          console.error(`Main: Stylesheet error: ${link.href}`);
+      // Check if stylesheet is accessible
+      fetch(link.href, { method: "HEAD" })
+        .then((response) => {
+          if (response.ok) {
+            console.log(`Main: Stylesheet ${link.href} exists`);
+            if (link.sheet) {
+              checkLoaded();
+            } else {
+              link.addEventListener("load", checkLoaded, { once: true });
+            }
+          } else {
+            console.warn(`Main: Stylesheet ${link.href} not found (status ${response.status}), skipping`);
+            loadedCount++;
+            checkAllLoaded();
+          }
+        })
+        .catch((error) => {
+          console.warn(`Main: Stylesheet ${link.href} fetch failed, treating as loaded:`, error.message);
           loadedCount++;
           checkAllLoaded();
-        }, { once: true });
-      }
+        });
+
+      link.addEventListener("error", () => {
+        console.error(`Main: Stylesheet error: ${link.href}`);
+        loadedCount++;
+        checkAllLoaded();
+      }, { once: true });
     });
 
     // Force loaded state after timeout

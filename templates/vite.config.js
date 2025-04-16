@@ -25,7 +25,9 @@ export default defineConfig({
         chunkFileNames: "chunks/[name].js",
         assetFileNames: "assets/[name].[ext]"
       }
-    }
+    },
+    assetsInclude: ["src/public/**/*"],
+    copyPublicDir: true
   },
   resolve: {
     alias: {
@@ -33,4 +35,5 @@ export default defineConfig({
       "~user": resolve("src")
     }
   }
+  publicDir: "src/public"
 });

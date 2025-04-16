@@ -11,24 +11,22 @@ const App = () => {
   }, []);
 
   return (
-    <div id="root">
-      <div className="layout">
-        <header className="top-header">
-          <div className="logo">
-            <img src="/public/favicon.ico" alt="Arkitect Logo" />
-            <span>Arkitect</span>
-          </div>
-          <div id="search-bar" className="search" />
-          <div id="theme-toggle" className="right" />
-        </header>
-        <div className="content-wrapper">
-          <nav className="left-nav" />
-          <div className="main-container">
-            <div className="breadcrumb-wrapper" />
-            <main className="content">
-              <div>Debug: Layout Loaded</div>
-            </main>
-          </div>
+    <div className="layout">
+      <header className="top-header">
+        <div className="logo">
+          <img src="/public/favicon.ico" alt="Arkitect Logo" />
+          <span>Arkitect</span>
+        </div>
+        <div id="search-bar" className="search" />
+        <div id="theme-toggle" className="right" />
+      </header>
+      <div className="content-wrapper">
+        <nav className="left-nav" />
+        <div className="main-container">
+          <div className="breadcrumb-wrapper" />
+          <main className="content">
+            <div>Debug: Layout Loaded</div>
+          </main>
         </div>
       </div>
     </div>
