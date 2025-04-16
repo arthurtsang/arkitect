@@ -33,7 +33,7 @@ const waitForStylesheets = () => {
       const checkLoaded = () => {
         try {
           const sheet = link.sheet;
-          if (sheet && (sheet.cssRules || sheet.rules || sheet.href)) {
+          if (sheet) {
             console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}`);
             loadedCount++;
             checkAllLoaded();
@@ -57,18 +57,17 @@ const waitForStylesheets = () => {
           loadedCount++;
           checkAllLoaded();
         }, { once: true });
-        setTimeout(checkLoaded, 100); // Initial delay
       }
     });
 
-    // Fallback timeout
+    // Force loaded state after timeout
     setTimeout(() => {
       if (loadedCount < totalStylesheets) {
         console.warn("Main: Stylesheet timeout, forcing loaded state");
         document.body.classList.add("loaded");
         resolve();
       }
-    }, 3000);
+    }, 2000);
   });
 };
 
@@ -80,11 +79,7 @@ if (rootElement) {
       console.log("Main: Before hydration, root content:", rootElement.innerHTML.substring(0, 200) + "...");
       console.log("Main: Before hydration, .layout exists:", !!document.querySelector(".layout"));
       try {
-        hydrateRoot(rootElement, <App />, {
-          onRecoverableError: (error) => {
-            console.warn("Main: Hydration error recovered:", error.message);
-          }
-        });
+        hydrateRoot(rootElement, <App />);
         console.log("Main: Hydrated successfully");
       } catch (error) {
         console.error("Main: Hydration failed:", error);

@@ -14,9 +14,9 @@ const InsertIntoElement = ({ element, children, preserveContent = false }) => {
       return;
     }
 
-    const liveElement = document.getElementById(element.id) || element;
+    const liveElement = element.id ? document.getElementById(element.id) : element;
     if (!liveElement) {
-      console.error("InsertIntoElement: Live element not found");
+      console.error("InsertIntoElement: Live element not found for", element.id || element);
       return;
     }
 
