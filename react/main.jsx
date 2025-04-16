@@ -2,29 +2,27 @@ import React from "react";
 import { hydrateRoot } from "react-dom/client";
 import App from "./App.jsx";
 
+console.log("Main: Script loaded");
+
 const rootElement = document.getElementById("root");
 
 const waitForStylesheets = () => {
+  console.log("Main: Waiting for stylesheets");
   return new Promise((resolve) => {
     const stylesheets = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
     console.log("Main: Found stylesheets:", stylesheets.map(link => link.href));
     if (stylesheets.length === 0) {
       console.warn("Main: No stylesheets found");
+      document.body.classList.add("loaded");
       resolve();
       return;
     }
 
     let loadedCount = 0;
     const totalStylesheets = stylesheets.length;
-    const timeout = setTimeout(() => {
-      console.warn("Main: Stylesheet loading timed out, loaded:", loadedCount, "/", totalStylesheets);
-      document.body.classList.add("loaded");
-      resolve();
-    }, 5000);
 
     const checkAllLoaded = () => {
       if (loadedCount === totalStylesheets) {
-        clearTimeout(timeout);
         console.log("Main: All stylesheets loaded");
         document.body.classList.add("loaded");
         resolve();
@@ -33,20 +31,32 @@ const waitForStylesheets = () => {
 
     stylesheets.forEach((link, index) => {
       const checkLoaded = () => {
-        if (link.sheet && link.sheet.cssRules && link.sheet.cssRules.length > 0) {
-          console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}, rules: ${link.sheet.cssRules.length}`);
+        try {
+          const sheet = link.sheet;
+          if (sheet && sheet.cssRules && sheet.cssRules.length > 0) {
+            console.log(`Main: Stylesheet ${index + 1} loaded: ${link.href}, rules: ${sheet.cssRules.length}`);
+            loadedCount++;
+            checkAllLoaded();
+          } else {
+            setTimeout(checkLoaded, 50);
+          }
+        } catch (e) {
+          console.error(`Main: Stylesheet access error for ${link.href}:`, e);
           loadedCount++;
           checkAllLoaded();
         }
       };
 
-      checkLoaded();
-      link.addEventListener("load", checkLoaded);
-      link.addEventListener("error", () => {
-        console.error(`Main: Stylesheet error: ${link.href}`);
-        loadedCount++;
-        checkAllLoaded();
-      });
+      if (link.sheet) {
+        checkLoaded();
+      } else {
+        link.addEventListener("load", checkLoaded, { once: true });
+        link.addEventListener("error", () => {
+          console.error(`Main: Stylesheet error: ${link.href}`);
+          loadedCount++;
+          checkAllLoaded();
+        }, { once: true });
+      }
     });
   });
 };

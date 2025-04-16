@@ -1,43 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import styled from "@emotion/styled";
 
-const ThemeToggle = () => {
-  console.log("ThemeToggle: Rendering");
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
-  });
+const Button = styled.button`
+  padding: 8px 16px;
+  cursor: pointer;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+`;
+
+const ThemeToggle = ({ element }) => {
+  console.log("ThemeToggle: Rendering, element:", !!element);
 
   useEffect(() => {
-    const lightSheet = document.getElementById("light-theme");
-    const darkSheet = document.getElementById("dark-theme");
-    if (isDarkMode) {
-      lightSheet.disabled = true;
-      darkSheet.disabled = false;
-      localStorage.setItem("theme", "dark");
-    } else {
-      lightSheet.disabled = false;
-      darkSheet.disabled = true;
-      localStorage.setItem("theme", "light");
+    console.log("ThemeToggle: useEffect running");
+    if (!element) {
+      console.warn("ThemeToggle: No element provided");
+      return;
     }
-  }, [isDarkMode]);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((prevMode) => !prevMode);
-  };
+    const themeSheet = document.querySelector("#theme");
+    if (!themeSheet) {
+      console.error("ThemeToggle: Theme stylesheet (#theme) not found");
+      return;
+    }
 
-  return (
-    <button
-      onClick={toggleDarkMode}
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        fontSize: "1.5rem"
-      }}
-      aria-label="Toggle dark mode"
-    >
-      {isDarkMode ? "🌙" : "☀️"}
-    </button>
-  );
+    const toggleTheme = () => {
+      const isDark = document.documentElement.classList.toggle("dark");
+      document.documentElement.classList.toggle("light", !isDark);
+      console.log("ThemeToggle: Toggled to", isDark ? "dark" : "light");
+    };
+
+    element.addEventListener("click", toggleTheme);
+    return () => element.removeEventListener("click", toggleTheme);
+  }, [element]);
+
+  if (!element) {
+    return <Button disabled>Toggle Theme</Button>;
+  }
+
+  return null;
 };
 
 export default ThemeToggle;
