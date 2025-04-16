@@ -12,11 +12,19 @@ const App = () => {
 
   useEffect(() => {
     console.log("App: useEffect running");
+    const maxAttempts = 5;
+    let attempts = 0;
+
     const attemptQuery = () => {
+      attempts++;
       const layoutElement = document.querySelector(".layout");
       if (!layoutElement) {
-        console.error("App: Layout element not found");
-        setError("Layout element not found");
+        console.error(`App: Layout element not found (attempt ${attempts}/${maxAttempts})`);
+        if (attempts < maxAttempts) {
+          setTimeout(attemptQuery, 100);
+          return;
+        }
+        setError("Layout element not found after multiple attempts");
         return;
       }
 
@@ -27,25 +35,34 @@ const App = () => {
         content: layoutElement.querySelector(".content")
       };
 
+      if (!data.searchBar || !data.themeToggle || !data.breadcrumbWrapper || !data.content) {
+        console.error(`App: Missing layout elements (attempt ${attempts}/${maxAttempts}):`, data);
+        if (attempts < maxAttempts) {
+          setTimeout(attemptQuery, 100);
+          return;
+        }
+        setError("Missing required layout elements");
+        return;
+      }
+
       console.log("App: Layout data:", data);
       setLayoutData(data);
     };
 
-    // Try immediately
     attemptQuery();
-
-    // Retry after a short delay to handle slow DOM loading
-    const timeout = setTimeout(attemptQuery, 100);
-    return () => clearTimeout(timeout);
   }, []);
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div style={{ padding: "20px", color: "red" }}>
+        Error: {error}. Please check the Eleventy template configuration.
+      </div>
+    );
   }
 
   if (!layoutData) {
     console.log("App: Waiting for layoutData");
-    return <div>Loading layout...</div>;
+    return <div style={{ padding: "20px" }}>Loading layout...</div>;
   }
 
   const routes = window.__ARKITECT_ROUTES__ || [];
