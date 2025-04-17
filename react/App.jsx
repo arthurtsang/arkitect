@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 
 const App = () => {
-  console.log("App: Starting render");
 
   useEffect(() => {
     console.log("App: useEffect running");

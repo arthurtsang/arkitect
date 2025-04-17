@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default defineConfig({
   plugins: [
@@ -9,7 +10,8 @@ export default defineConfig({
       babel: {
         plugins: ["@emotion/babel-plugin"]
       }
-    })
+    }),
+    nodeResolve({jsnext: true})
   ],
   build: {
     outDir: "dist",
@@ -18,7 +20,7 @@ export default defineConfig({
     sourcemap: true,
     cssCodeSplit: false,
     rollupOptions: {
-      input: resolve("~arkitect/react/main.jsx"), // Changed to main.jsx
+      input: resolve(__dirname, "node_modules/@arthurtsang/arkitect/react/main.jsx"), // Changed to main.jsx
       output: {
         format: "es",
         entryFileNames: "main.js",
@@ -29,8 +31,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "~arkitect": resolve("node_modules/@arthurtsang/arkitect"),
-      "~user": resolve("src")
+      "~arkitect": resolve(__dirname, "node_modules/@arthurtsang/arkitect"),
+      "~user": resolve(__dirname, "src")
     }
   }
 });
