@@ -18,7 +18,7 @@ export default defineConfig({
     sourcemap: true,
     cssCodeSplit: false,
     rollupOptions: {
-      input: resolve("react/main.jsx"), // Changed to main.jsx
+      input: resolve("~arkitect/react/main.jsx"), // Changed to main.jsx
       output: {
         format: "es",
         entryFileNames: "main.js",
