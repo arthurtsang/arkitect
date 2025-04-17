@@ -18,17 +18,14 @@ export default defineConfig({
     sourcemap: true,
     cssCodeSplit: false,
     rollupOptions: {
-      input: resolve("src/index.jsx"),
+      input: resolve("react/main.jsx"), // Changed to main.jsx
       output: {
         format: "es",
         entryFileNames: "main.js",
         chunkFileNames: "chunks/[name].js",
         assetFileNames: "assets/[name].[ext]"
       }
-    },
-    assetsInclude: ["src/public/**/*"],
-    copyPublicDir: true,
-    publicDir: "src/public"
+    }
   },
   resolve: {
     alias: {
