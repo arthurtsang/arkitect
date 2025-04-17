@@ -27,7 +27,8 @@ export default defineConfig({
       }
     },
     assetsInclude: ["src/public/**/*"],
-    copyPublicDir: true
+    copyPublicDir: true,
+    publicDir: "src/public"
   },
   resolve: {
     alias: {
@@ -35,5 +36,4 @@ export default defineConfig({
       "~user": resolve("src")
     }
   }
-  publicDir: "src/public"
 });
